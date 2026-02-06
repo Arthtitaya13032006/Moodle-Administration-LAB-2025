@@ -329,8 +329,9 @@ docker pull mariadb:latest
 ```
 
 **บันทึกผลการทดลอง 1:**
-```bash
- รูปผลการโหลด Images ที่สมบูรณ์ 
+
+<img width="771" height="308" alt="image" src="https://github.com/user-attachments/assets/5b6627d5-fd88-4cdd-9df5-4427ff2fbfe3" />
+
 ```
 #### 2.2 รัน Docker Compose
 
@@ -345,8 +346,9 @@ docker-compose up -d
 **ตรวจสอบการทำงานโดยใช้คำสั่ง docker-compose logs -f:**
 
 **บันทึกผลการทดลอง 2:**
-```bash
- รูปผลการรัน docker-compose ที่สมบูรณ์ 
+
+<img width="1409" height="306" alt="image" src="https://github.com/user-attachments/assets/3b91345d-fdb7-4098-9232-1fd38b96028e" />
+
 ```
 
 #### 2.3 ตรวจสอบสถานะ Containers
@@ -367,8 +369,8 @@ moodle_db     docker-entrypoint.sh mariadbd    Up      3306/tcp
 - **Ports** = Port mapping ที่ใช้งาน
   
 **บันทึกผลการทดลอง 3:**
-```bash
- รูปผลการรัน docker-compose ps
+<img width="1404" height="192" alt="image" src="https://github.com/user-attachments/assets/1356ccb5-62e1-4664-9518-73f235fd68d8" />
+
 ```
 
 
@@ -396,8 +398,8 @@ docker start moodle_app
 
 ```
 **บันทึกผลการทดลอง 4:**
-```bash
- รูปผลการรัน docker-compose logs 
+<img width="1404" height="525" alt="image" src="https://github.com/user-attachments/assets/38a9f7a6-f901-46d2-9c22-0a3edb4c0c0c" />
+
 ```
 
 #### 2.5 ตรวจสอบ Network และ Volumes
@@ -413,8 +415,8 @@ docker volume inspect moodle-docker_moodledata
 ```
 
 **บันทึกผลการทดลอง 5:**
-```bash
- รูปผลการรัน ตรวจสอบ volume
+<img width="811" height="787" alt="image" src="https://github.com/user-attachments/assets/8d68a834-7297-4743-b153-277cb217ea2c" />
+
 ```
 
 ---
@@ -936,28 +938,47 @@ docker exec -i moodle_db mysql -u moodleuser -pmoodlepassword moodle < backup_20
 
 **1. อธิบายความแตกต่างระหว่าง Docker Image และ Docker Container พร้อมยกตัวอย่าง**
 
-คำตอบ:
+คำตอบ:Docker Image คือแม่แบบ (template) ที่บรรจุระบบปฏิบัติการ ไลบรารี และแอปพลิเคชัน
+      Docker Container คืออินสแตนซ์ที่ถูกรันจาก Image และกำลังทำงานอยู่จริง
+      ตัวอย่าง: mariadb:latest เป็น Docker Image
+              moodle_db เป็น Docker Container ที่สร้างจาก Image mariadb:latest
 ```
 
 ```
 
 **2. จากสถาปัตยกรรมในการทดลอง มี Container กี่ตัว? แต่ละตัวมีหน้าที่อะไร?**
 
-คำตอบ:
+คำตอบ:มีทั้งหมด 2 Container
+moodle_dbทำหน้าที่เป็นฐานข้อมูล (MariaDB)
+จัดเก็บข้อมูลผู้ใช้ รายวิชา และการตั้งค่าต่าง ๆ ของ Moodle
+moodle_appทำหน้าที่เป็น Web Application (Moodle)
+ให้บริการผ่าน Web Browser และติดต่อฐานข้อมูล
 ```
 
 ```
 
 **3. จากการทดลองมีการจัดการ Volume แบบใด มีข้อดีข้อเสียอย่างไร?**
 
-คำตอบ:
+คำตอบ:ใช้การจัดการแบบ Named Volume
+
+db_data → เก็บข้อมูลฐานข้อมูล
+moodledata → เก็บไฟล์ข้อมูลของ Moodle
+ข้อดี
+ข้อมูลไม่หายเมื่อ Container หยุดหรือถูกลบ
+แยกข้อมูลออกจาก Container ชัดเจน
+ข้อเสีย
+ต้องจัดการเองเมื่อไม่ต้องการข้อมูลแล้ว
+ถ้าลบ Volume โดยไม่ตั้งใจ ข้อมูลจะสูญหายถาวร
 ```
 
 ```
 
 **4. Network ใน Docker Compose ทำหน้าที่อะไร? Container สื่อสารกันอย่างไร?**
 
-คำตอบ:
+คำตอบ:Network ทำหน้าที่เป็น เครือข่ายกลาง ให้ Container ติดต่อกันได้
+Container สื่อสารกันผ่าน ชื่อ service
+Moodle ติดต่อฐานข้อมูลผ่าน db:3306
+ไม่จำเป็นต้องเปิดพอร์ตฐานข้อมูลออกสู่ภายนอก
 ```
 
 
@@ -966,14 +987,18 @@ docker exec -i moodle_db mysql -u moodleuser -pmoodlepassword moodle < backup_20
 
 **5. `depends_on` ในไฟล์ docker-compose.yml มีความสำคัญอย่างไร?**
 
-คำตอบ:
+คำตอบ:depends_on ใช้กำหนดลำดับการเริ่มต้น Container
+ให้ db เริ่มก่อน moodle ลดปัญหา Moodle เริ่มก่อน DB พร้อมใช้งาน
+หมายเหตุ: depends_on ไม่ได้ตรวจสอบว่า DB “พร้อมใช้งาน” แค่เริ่มก่อนเท่านั้น
 ```
 
 ```
 
 **6. ถ้าต้องการเปลี่ยน Port ของ Moodle  เป็น 9000 ต้องแก้ไขส่วนใดของไฟล์?**
 
-คำตอบ:
+คำตอบ: แก้ไขที่ส่วน ports ของ service moodle
+ports:
+  - "9000:80"
 ```
 
 
@@ -981,7 +1006,8 @@ docker exec -i moodle_db mysql -u moodleuser -pmoodlepassword moodle < backup_20
 
 **7. Environment Variables `MOODLE_DB_HOST=db` หมายความว่าอย่างไร? ทำไมไม่ใช้ `localhost`?**
 
-คำตอบ:
+คำตอบ:db คือชื่อ service ของ Container ฐานข้อมูล Docker DNS จะ resolve ชื่อ db ไปยัง IP ของ Container ฐานข้อมูล
+ไม่ใช้ localhost เพราะlocalhost ใน Container หมายถึง Container ตัวเอง Moodle จะไม่เจอ Database ถ้าใช้ localhost
 ```
 
 ```
@@ -989,7 +1015,8 @@ docker exec -i moodle_db mysql -u moodleuser -pmoodlepassword moodle < backup_20
 
 **8. เปรียบเทียบข้อดีและข้อเสียของการติดตั้ง Moodle ด้วย Docker เทียบกับการติดตั้งแบบปกติ**
 
-คำตอบ:
+คำตอบ:การติดตั้ง Moodle ด้วย Docker มีความง่ายและรวดเร็ว เนื่องจากระบบและเครื่องมือที่จำเป็นถูกรวมไว้ใน Container แล้ว ผู้ดูแลระบบสามารถติดตั้งและเริ่มใช้งานได้ทันทีโดยไม่ต้องตั้งค่าสภาพแวดล้อมทีละขั้นตอน อีกทั้งยังสะดวกต่อการย้ายระบบไปยังเครื่องอื่น เพราะสามารถนำไฟล์ Docker Compose และ Volume ไปใช้งานต่อได้ทันที นอกจากนี้ Docker ช่วยควบคุมเวอร์ชันของซอฟต์แวร์และไลบรารีได้ดี ลดปัญหาการชนกันของ dependency อย่างไรก็ตาม ผู้ใช้งานจำเป็นต้องมีความรู้พื้นฐานเกี่ยวกับ Docker และอาจมี overhead เล็กน้อยด้านประสิทธิภาพจากการทำงานผ่าน Container
+        ในขณะที่การติดตั้ง Moodle แบบปกติ (ติดตั้งลงบนระบบโดยตรง) ผู้ดูแลระบบไม่จำเป็นต้องเรียนรู้ Docker ทำให้เข้าใจขั้นตอนการติดตั้งได้ง่ายกว่า แต่กระบวนการติดตั้งมีความซับซ้อน ต้องจัดการ Web Server, PHP และ Database ด้วยตนเองทั้งหมด การย้ายระบบไปยังเครื่องอื่นทำได้ยากกว่า และมีความเสี่ยงต่อปัญหาการชนกันของเวอร์ชันซอฟต์แวร์หรือไลบรารี อย่างไรก็ตาม การติดตั้งแบบปกติจะได้ประสิทธิภาพการทำงานโดยตรงจากระบบ ไม่มี overhead จาก Container
 ```
 
 ```
@@ -998,8 +1025,12 @@ docker exec -i moodle_db mysql -u moodleuser -pmoodlepassword moodle < backup_20
 
 คำตอบ (เขียน YAML):
 ```yaml
-
-
+:redis:
+  image: redis:alpine
+  container_name: moodle_redis
+  restart: unless-stopped
+  networks:
+    - moodle_network
 
 
 
@@ -1013,16 +1044,32 @@ docker exec -i moodle_db mysql -u moodleuser -pmoodlepassword moodle < backup_20
 
 คำตอบ:
 ```
-วิธีตรวจสอบ:
-
-
+วิธีตรวจสอบ:1.ตรวจสอบ log
+          2.ตรวจสอบสถานะ DB
+          3.ตรวจสอบค่า Environment Variables
+            MOODLE_DB_HOST
+            MOODLE_DB_USER
+            MOODLE_DB_PASSWORD
+          4.Restart Container
 วิธีแก้ไข:
 
 ```
 
 **11. ถ้ารัน `docker-compose down -v` จะเกิดอะไรขึ้นกับข้อมูล?**
 
-คำตอบ:
+คำตอบ:คำสั่งนี้จะ
+
+หยุดและลบ Container
+
+ลบ Volumes ทั้งหมด
+
+⚠️ ผลลัพธ์
+
+ข้อมูลฐานข้อมูล
+
+ข้อมูล Moodle ทั้งหมด
+
+➡️ หายถาวร ไม่สามารถกู้คืนได้
 ```
 
 
